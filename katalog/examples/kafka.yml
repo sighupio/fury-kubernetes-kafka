@@ -1,0 +1,55 @@
+---
+apiVersion: kafka.strimzi.io/v1beta1
+kind: Kafka
+metadata:
+  name: cluster-example
+spec:
+  kafka:
+    template:
+      pod:
+        terminationGracePeriodSeconds: 120
+        metadata:
+          labels:
+            name: kafka-broker
+    jvmOptions:
+      "-Xmx": "1g"
+      "-Xms": "1g"
+      "-XX":
+        "UseG1GC": true
+        "MaxGCPauseMillis": 20
+        "InitiatingHeapOccupancyPercent": 35
+        "ExplicitGCInvokesConcurrent": true
+        "UseParNewGC": false
+    version: 2.5.0
+    replicas: 5
+    listeners:
+      plain: {}
+      tls: {}
+    config:
+      offsets.topic.replication.factor: 3
+      transaction.state.log.replication.factor: 3
+      transaction.state.log.min.isr: 2
+      log.message.format.version: "2.5"
+    storage:
+      type: jbod
+      volumes:
+        - id: 0
+          type: persistent-claim
+          size: 100Gi
+          deleteClaim: false
+  zookeeper:
+    template:
+      pod:
+        terminationGracePeriodSeconds: 120
+        metadata:
+          labels:
+            name: kafka-zookeeper
+    replicas: 3
+    storage:
+      type: persistent-claim
+      size: 100Gi
+      deleteClaim: false
+  entityOperator:
+    topicOperator: {}
+    userOperator: {}
+  cruiseControl: {}

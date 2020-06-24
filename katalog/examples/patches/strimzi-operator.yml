@@ -1,0 +1,12 @@
+---
+- op: add
+  path: /spec/template/spec/nodeSelector
+  value:
+    node-role.kubernetes.io/kafka: ""
+
+- op: add
+  path: /spec/template/spec/tolerations
+  value:
+    - key: node-role.kubernetes.io/kafka
+      operator: Exists
+      effect: NoSchedule
