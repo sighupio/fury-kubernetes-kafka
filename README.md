@@ -7,3 +7,4 @@ This module contains the following component for Kafka:
 - kafka manager
 - kafka addons:
    - kafka-rebalancer
+   - schema-registry
