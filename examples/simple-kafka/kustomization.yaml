@@ -5,4 +5,5 @@ kind: Kustomization
 resources:
   - ../../katalog/kafka-operator
   - topics.yml
-  - cluster.yml
+  - cluster.ym
+  - schema-registry.yml
