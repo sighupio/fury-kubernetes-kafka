@@ -6,4 +6,4 @@ resources:
   - ../../katalog/kafka-operator
   - topics.yml
   - cluster.yml
-  - schema-registry.yml
+  - ../../katalog/kafka-addons/schema-registry

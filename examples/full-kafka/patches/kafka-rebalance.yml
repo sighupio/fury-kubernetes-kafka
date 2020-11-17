@@ -1,0 +1,7 @@
+---
+apiVersion: kafka.strimzi.io/v1alpha1
+kind: KafkaRebalance
+metadata:
+  name: rebalance
+  labels:
+    strimzi.io/cluster: cluster-example
