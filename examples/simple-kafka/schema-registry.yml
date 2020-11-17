@@ -35,9 +35,9 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: schema-registry
+  name: schema-registry-svc
   labels:
-    app: schema-registry
+    app: schema-registry-svc
 spec:
   type: NodePort
   ports:
