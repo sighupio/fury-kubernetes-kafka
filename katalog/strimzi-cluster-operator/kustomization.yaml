@@ -7,3 +7,10 @@ namespace: kafka-operator
 resources:
   - namespace.yaml
   - cluster-operator.yaml
+
+images:
+  - name: quay.io/strimzi/operator
+    newName: registry.sighup.io/fury/strimzi/operator
+
+patchesStrategicMerge:
+  - patch-images.yaml
