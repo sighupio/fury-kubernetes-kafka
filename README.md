@@ -80,6 +80,14 @@ resources:
 ```bash
 kustomize build . | kubectl apply -f -
 ```
+
+## Examples
+
+### Deploying a Kafka cluster
+
+Check the example in the example folder [kafka-standard](./examples/kafka-standard) to have an overview on how to deploy
+a complete Kafka Cluster using the operator.
+
 <!-- Links -->
 
 [strimzi-page]: https://strimzi.io
