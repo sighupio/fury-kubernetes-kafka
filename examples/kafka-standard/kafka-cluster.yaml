@@ -1,0 +1,291 @@
+# Copyright (c) 2017-present SIGHUP s.r.l All rights reserved.
+# Use of this source code is governed by a BSD-style
+# license that can be found in the LICENSE file.
+
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: Kafka
+metadata:
+  name: sighup-kafka-cluster
+spec:
+  kafkaExporter:
+    groupRegex: .*
+    topicRegex: .*
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    logging: debug
+    enableSaramaLogging: false
+    readinessProbe:
+      initialDelaySeconds: 15
+      timeoutSeconds: 5
+    livenessProbe:
+      initialDelaySeconds: 15
+      timeoutSeconds: 5
+  kafka:
+    version: 3.2.3
+    replicas: 3
+    template:
+      pod:
+        affinity:
+          podAntiAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                      - key: name
+                        operator: In
+                        values:
+                          - kafka-broker
+                  topologyKey: kubernetes.io/hostname
+    jvmOptions:
+      -Xms: 2048m
+      -Xmx: 2048m
+    resources:
+      requests:
+        cpu: 1
+        memory: 2Gi
+      limits:
+        cpu: 2
+        memory: 3Gi
+    # Example listener override to interact with the Kafka Cluster from outside Kubernetes
+    listeners:
+      - name: external
+        port: 9092
+        type: nodeport
+        tls: false
+        configuration:
+          bootstrap:
+            nodePort: 32110
+          brokers:
+            - broker: 0
+              nodePort: 32010
+            - broker: 1
+              nodePort: 32011
+            - broker: 2
+              nodePort: 32012
+          preferredNodePortAddressType: InternalIP
+    config:
+      auto.create.topics.enable: "false"
+      default.replication.factor: 3
+      min.insync.replicas: 2
+      offsets.topic.replication.factor: 3
+      transaction.state.log.replication.factor: 3
+      transaction.state.log.min.isr: 2
+      log.message.format.version: 3.2
+    storage:
+      volumes:
+        - type: persistent-claim
+          size: 10Gi
+          id: 0
+      type: jbod
+    metricsConfig:
+      type: jmxPrometheusExporter
+      valueFrom:
+        configMapKeyRef:
+          key: sighup-kafka-cluster-kafka-jmx-exporter-configuration.yaml
+          name: sighup-kafka-cluster-kafka-jmx-exporter-configuration
+  zookeeper:
+    replicas: 3
+    jvmOptions:
+      -Xms: 2048m
+      -Xmx: 2048m
+    resources:
+      requests:
+        cpu: 0.5
+        memory: 2Gi
+      limits:
+        cpu: 2
+        memory: 3Gi
+    template:
+      pod:
+        affinity:
+          podAntiAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                      - key: name
+                        operator: In
+                        values:
+                          - kafka-zookeeper
+                  topologyKey: kubernetes.io/hostname
+    storage:
+      type: persistent-claim
+      size: 10Gi
+    metricsConfig:
+      type: jmxPrometheusExporter
+      valueFrom:
+        configMapKeyRef:
+          key: sighup-kafka-cluster-zookeeper-jmx-exporter-configuration.yaml
+          name: sighup-kafka-cluster-zookeeper-jmx-exporter-configuration
+  entityOperator:
+    topicOperator: {}
+    userOperator: {}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sighup-kafka-cluster-kafka-jmx-exporter-configuration
+data:
+  sighup-kafka-cluster-kafka-jmx-exporter-configuration.yaml: |
+    lowercaseOutputName: true
+    rules:
+    - pattern: "kafka.server<type=(.+), name=(.+), clientId=(.+), topic=(.+), partition=(.*)><>Value"
+      name: "kafka_server_$1_$2"
+      type: "GAUGE"
+      labels:
+        clientId: "$3"
+        topic: "$4"
+        partition: "$5"
+    - pattern: "kafka.server<type=(.+), name=(.+), clientId=(.+), brokerHost=(.+), brokerPort=(.+)><>Value"
+      name: "kafka_server_$1_$2"
+      type: "GAUGE"
+      labels:
+        clientId: "$3"
+        broker: "$4:$5"
+    - pattern: "kafka.server<type=(.+), cipher=(.+), protocol=(.+), listener=(.+), networkProcessor=(.+)><>connections"
+      name: "kafka_server_$1_connections_tls_info"
+      type: "GAUGE"
+      labels:
+        listener: "$2"
+        networkProcessor: "$3"
+        protocol: "$4"
+        cipher: "$5"
+    - pattern: "kafka.server<type=(.+), clientSoftwareName=(.+), clientSoftwareVersion=(.+),\
+        \ listener=(.+), networkProcessor=(.+)><>connections"
+      name: "kafka_server_$1_connections_software"
+      type: "GAUGE"
+      labels:
+        clientSoftwareName: "$2"
+        clientSoftwareVersion: "$3"
+        listener: "$4"
+        networkProcessor: "$5"
+    - pattern: "kafka.server<type=(.+), listener=(.+), networkProcessor=(.+)><>(.+):"
+      name: "kafka_server_$1_$4"
+      type: "GAUGE"
+      labels:
+        listener: "$2"
+        networkProcessor: "$3"
+    - pattern: "kafka.server<type=(.+), listener=(.+), networkProcessor=(.+)><>(.+)"
+      name: "kafka_server_$1_$4"
+      type: "GAUGE"
+      labels:
+        listener: "$2"
+        networkProcessor: "$3"
+    - pattern: "kafka.(\\w+)<type=(.+), name=(.+)Percent\\w*><>MeanRate"
+      name: "kafka_$1_$2_$3_percent"
+      type: "GAUGE"
+    - pattern: "kafka.(\\w+)<type=(.+), name=(.+)Percent\\w*><>Value"
+      name: "kafka_$1_$2_$3_percent"
+      type: "GAUGE"
+    - pattern: "kafka.(\\w+)<type=(.+), name=(.+)Percent\\w*, (.+)=(.+)><>Value"
+      name: "kafka_$1_$2_$3_percent"
+      type: "GAUGE"
+      labels:
+        $4: "$5"
+    - pattern: "kafka.(\\w+)<type=(.+), name=(.+)PerSec\\w*, (.+)=(.+), (.+)=(.+)><>Count"
+      name: "kafka_$1_$2_$3_total"
+      type: "COUNTER"
+      labels:
+        $4: "$5"
+        $6: "$7"
+    - pattern: "kafka.(\\w+)<type=(.+), name=(.+)PerSec\\w*, (.+)=(.+)><>Count"
+      name: "kafka_$1_$2_$3_total"
+      type: "COUNTER"
+      labels:
+        $4: "$5"
+    - pattern: "kafka.(\\w+)<type=(.+), name=(.+)PerSec\\w*><>Count"
+      name: "kafka_$1_$2_$3_total"
+      type: "COUNTER"
+    - pattern: "kafka.(\\w+)<type=(.+), name=(.+), (.+)=(.+), (.+)=(.+)><>Value"
+      name: "kafka_$1_$2_$3"
+      type: "GAUGE"
+      labels:
+        $4: "$5"
+        $6: "$7"
+    - pattern: "kafka.(\\w+)<type=(.+), name=(.+), (.+)=(.+)><>Value"
+      name: "kafka_$1_$2_$3"
+      type: "GAUGE"
+      labels:
+        $4: "$5"
+    - pattern: "kafka.(\\w+)<type=(.+), name=(.+)><>Value"
+      name: "kafka_$1_$2_$3"
+      type: "GAUGE"
+    - pattern: "kafka.(\\w+)<type=(.+), name=(.+), (.+)=(.+), (.+)=(.+)><>Count"
+      name: "kafka_$1_$2_$3_count"
+      type: "COUNTER"
+      labels:
+        $4: "$5"
+        $6: "$7"
+    - pattern: "kafka.(\\w+)<type=(.+), name=(.+), (.+)=(.*), (.+)=(.+)><>(\\d+)thPercentile"
+      name: "kafka_$1_$2_$3"
+      type: "GAUGE"
+      labels:
+        $4: "$5"
+        $6: "$7"
+        quantile: "0.$8"
+    - pattern: "kafka.(\\w+)<type=(.+), name=(.+), (.+)=(.+)><>Count"
+      name: "kafka_$1_$2_$3_count"
+      type: "COUNTER"
+      labels:
+        $4: "$5"
+    - pattern: "kafka.(\\w+)<type=(.+), name=(.+), (.+)=(.*)><>(\\d+)thPercentile"
+      name: "kafka_$1_$2_$3"
+      type: "GAUGE"
+      labels:
+        $4: "$5"
+        quantile: "0.$6"
+    - pattern: "kafka.(\\w+)<type=(.+), name=(.+)><>Count"
+      name: "kafka_$1_$2_$3_count"
+      type: "COUNTER"
+    - pattern: "kafka.(\\w+)<type=(.+), name=(.+)><>(\\d+)thPercentile"
+      name: "kafka_$1_$2_$3"
+      type: "GAUGE"
+      labels:
+        quantile: "0.$4"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sighup-kafka-cluster-zookeeper-jmx-exporter-configuration
+data:
+  sighup-kafka-cluster-zookeeper-jmx-exporter-configuration.yaml: |
+    lowercaseOutputName: true
+    rules:
+    - pattern: "org.apache.ZooKeeperService<name0=ReplicatedServer_id(\\d+)><>(\\w+)"
+      name: "zookeeper_$2"
+      type: "GAUGE"
+    - pattern: "org.apache.ZooKeeperService<name0=ReplicatedServer_id(\\d+), name1=replica.(\\\
+        d+)><>(\\w+)"
+      name: "zookeeper_$3"
+      type: "GAUGE"
+      labels:
+        replicaId: "$2"
+    - pattern: "org.apache.ZooKeeperService<name0=ReplicatedServer_id(\\d+), name1=replica.(\\\
+        d+), name2=(\\w+)><>(Packets\\w+)"
+      name: "zookeeper_$4"
+      type: "COUNTER"
+      labels:
+        replicaId: "$2"
+        memberType: "$3"
+    - pattern: "org.apache.ZooKeeperService<name0=ReplicatedServer_id(\\d+), name1=replica.(\\\
+        d+), name2=(\\w+)><>(\\w+)"
+      name: "zookeeper_$4"
+      type: "GAUGE"
+      labels:
+        replicaId: "$2"
+        memberType: "$3"
+    - pattern: "org.apache.ZooKeeperService<name0=ReplicatedServer_id(\\d+), name1=replica.(\\\
+        d+), name2=(\\w+), name3=(\\w+)><>(\\w+)"
+      name: "zookeeper_$4_$5"
+      type: "GAUGE"
+      labels:
+        replicaId: "$2"
+        memberType: "$3"

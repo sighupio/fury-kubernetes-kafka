@@ -1,0 +1,30 @@
+# Kafka Standard
+
+This example folder will deploy a Kafka cluster with the following characteristics:
+
+- 3 Zookeeper nodes
+- 3 Kafka nodes
+- 1 Entity operator pod
+- 1 Kafka Exporter pod
+
+Also, a namespace called `sighup` will be created.
+
+## Deploy
+
+To deploy the Kafka cluster, run the following command:
+
+```bash
+kustomize build . | kubectl apply -f -
+```
+
+You need to have the `strimzi-cluster-operator` and `monitoring-configs` packages installed.
+
+## Example topics
+
+In this cluster, we enabled the `entityOperator` to manage the topics and users. 
+
+See the file `topics.yaml` to see an example of how to create topics.
+
+## Monitoring
+
+We are also adding monitoring to the Kafka Cluster, using pod-monitors and enabling KafkaExporter.
