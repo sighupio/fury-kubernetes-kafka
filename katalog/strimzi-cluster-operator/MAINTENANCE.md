@@ -19,7 +19,7 @@ Then, check the differences with the current files:
 - cluster-operator.yaml
 
 Check all the updated images and sync/patch them with the https://github.com/sighupio/fury-distribution-container-image-sync
-repository.
+repository. The patching is done via `kustomization.yaml` and `patch-images.yaml` files.
 
 What was changed:
 
