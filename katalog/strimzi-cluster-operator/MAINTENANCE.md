@@ -20,3 +20,9 @@ Then, check the differences with the current files:
 
 Check all the updated images and sync/patch them with the https://github.com/sighupio/fury-distribution-container-image-sync
 repository.
+
+What was changed:
+
+- STRIMZI_NAMESPACE environment variable set to `*` (to watch all namespaces)
+- strimzi-cluster-operator-entity-operator-delegation RoleBinding changed to ClusterRoleBinding (to watch all namespaces)
+- strimzi-cluster-operator RoleBinding changed to strimzi-cluster-operator-namespaced and ClusterRoleBinding (to watch all namespaces)

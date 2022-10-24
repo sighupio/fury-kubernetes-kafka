@@ -563,9 +563,9 @@ spec:
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
+kind: ClusterRoleBinding
 metadata:
-  name: strimzi-cluster-operator
+  name: strimzi-cluster-operator-namespaced
   labels:
     app: strimzi
 subjects:
@@ -620,9 +620,7 @@ spec:
               mountPath: /opt/strimzi/custom-config/
           env:
             - name: STRIMZI_NAMESPACE
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.namespace
+              value: "*"
             - name: STRIMZI_FULL_RECONCILIATION_INTERVAL_MS
               value: "120000"
             - name: STRIMZI_OPERATION_TIMEOUT_MS
@@ -14074,7 +14072,7 @@ data:
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
+kind: ClusterRoleBinding
 metadata:
   name: strimzi-cluster-operator-entity-operator-delegation
   labels:
