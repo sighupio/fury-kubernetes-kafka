@@ -18,6 +18,9 @@ You can deploy the package with the following command:
 kustomize build . | kubectl apply -f -
 ```
 
+> NB: this package should be used if there is at least one Kafka cluster deployed with the operator. Otherwise, a lot of alerts
+> will be triggered.
+
 <!-- Links -->
 
 [Kubernetes Fury Monitoring]: https://github.com/sighupio/fury-kubernetes-monitoring
