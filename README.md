@@ -15,17 +15,18 @@ If you are new to KFD please refer to the [official documentation][kfd-docs] on 
 
 ## Overview
 
-**Kubernetes Fury Kafka** uses the Strimzi operator to install and manage Kafka clusters in a Kubernetes environment.
+**Kubernetes Fury Kafka** uses the [Strimzi operator][strimzi-page] to install and manage Kafka clusters in a Kubernetes environment.
 
-All the components are deployed in the `XXX` namespace in the cluster.
+All the components are deployed in the `kafka-operator` namespace in the cluster.
 
 ## Packages
 
 The following packages are included in the Fury Kubernetes Logging katalog:
 
-| Package                                                | Version  | Description                                                                                             |
-|--------------------------------------------------------|----------|---------------------------------------------------------------------------------------------------------|
-| [x](katalog/x)                             | `x`  | x           |
+| Package                                                      | Version   | Description                                                                                                                                          |
+|--------------------------------------------------------------|-----------|------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [strimzi-cluster-operator](katalog/strimzi-cluster-operator) | `v0.31.1` | Strimzi provides a way to run an Apache Kafka® cluster on Kubernetes in various deployment configurations, deployed in cluster-wide configuration.   |
+| [monitoring-configs](katalog/monitoring-configs)             | `-`       | Monitoring configurations for Strimzi Kafka Operator                                                                                                 |
 
 Click on each package to see its full documentation.
 
@@ -54,7 +55,9 @@ Check the [compatibility matrix][compatibility-matrix] for additional informatio
 
 ```yaml
 bases:
-  - name: kafka/x
+  - name: kafka/strimzi-cluster-operator
+    version: "v1.0.0"
+  - name: kafka/monitoring-configs
     version: "v1.0.0"
 ```
 
@@ -68,7 +71,8 @@ bases:
 
 ```yaml
 resources:
-- ./vendor/katalog/kafka/x
+- ./vendor/katalog/kafka/strimzi-cluster-operator
+- ./vendor/katalog/kafka/monitoring-configs
 ```
 
 5. To deploy the packages to your cluster, execute:
@@ -76,13 +80,6 @@ resources:
 ```bash
 kustomize build . | kubectl apply -f -
 ```
-
-### Common Customisations
-
-#### Setup a high-availability three-node opensearch
-
-Logging module offers an out of the box, highly-available setup for `opensearch` instead of a single node version. To set this up, in the `Furyfile` and `kustomization`, you can replace `opensearch-single` with `opensearch-triple`.
-
 <!-- Links -->
 
 [strimzi-page]: https://strimzi.io
