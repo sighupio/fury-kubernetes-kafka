@@ -33,3 +33,8 @@ We are also adding monitoring to the Kafka Cluster, using pod-monitors and enabl
 
 Additionally in this example we are customizing the listeners to make the Kafka Cluster reachable from outside the cluster
 using NodePorts.
+
+# Conclusions
+
+This example shows how to deploy a Kafka cluster using the Strimzi Operator, with a comprehensive monitoring configuration.
+Before using in production, check all the values and configurations for your use case.
