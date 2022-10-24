@@ -28,3 +28,8 @@ See the file `topics.yaml` to see an example of how to create topics.
 ## Monitoring
 
 We are also adding monitoring to the Kafka Cluster, using pod-monitors and enabling KafkaExporter.
+
+## Custom configurations
+
+Additionally in this example we are customizing the listeners to make the Kafka Cluster reachable from outside the cluster
+using NodePorts.
