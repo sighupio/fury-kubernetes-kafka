@@ -40,6 +40,9 @@ Click on each package to see its full documentation.
 
 Check the [compatibility matrix][compatibility-matrix] for additional information about previous releases of the modules.
 
+The module is still in version `0.X.X` but can be used in production, we are strictly following the possible breaking
+changes that can be introduced by the Strimzi operator.
+
 ## Usage
 
 ### Prerequisites
