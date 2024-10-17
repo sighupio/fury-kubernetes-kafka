@@ -27,7 +27,7 @@ spec:
       initialDelaySeconds: 15
       timeoutSeconds: 5
   kafka:
-    version: 3.2.3
+    version: 3.8.0
     replicas: 3
     template:
       pod:
@@ -97,7 +97,7 @@ spec:
       -Xmx: 2048m
     resources:
       requests:
-        cpu: 0.5
+        cpu: "0.5"
         memory: 2Gi
       limits:
         cpu: 2

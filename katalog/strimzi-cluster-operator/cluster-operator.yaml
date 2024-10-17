@@ -1,3 +1,6 @@
+# Copyright (c) 2017-present SIGHUP s.r.l All rights reserved.
+# Use of this source code is governed by a BSD-style
+# license that can be found in the LICENSE file.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
@@ -148,7 +151,7 @@ spec:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: strimzi-cluster-operator
+  name: strimzi-cluster-operator-global
   labels:
     app: strimzi
 subjects:
@@ -158,6 +161,22 @@ subjects:
 roleRef:
   kind: ClusterRole
   name: strimzi-cluster-operator-global
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: strimzi-cluster-operator-entity-operator-delegation
+  labels:
+    app: strimzi
+subjects:
+  - kind: ServiceAccount
+    name: strimzi-cluster-operator
+    namespace: kafka-operator
+roleRef:
+  kind: ClusterRole
+  name: strimzi-entity-operator
   apiGroup: rbac.authorization.k8s.io
 
 ---
@@ -11078,7 +11097,7 @@ rules:
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
+kind: ClusterRoleBinding
 metadata:
   name: strimzi-cluster-operator-watched
   labels:
@@ -13775,9 +13794,7 @@ spec:
               mountPath: /opt/strimzi/custom-config/
           env:
             - name: STRIMZI_NAMESPACE
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.namespace
+              value: "*"
             - name: STRIMZI_FULL_RECONCILIATION_INTERVAL_MS
               value: "120000"
             - name: STRIMZI_OPERATION_TIMEOUT_MS
@@ -13851,10 +13868,10 @@ spec:
           resources:
             limits:
               cpu: 1000m
-              memory: 384Mi
+              memory: 1Gi
             requests:
               cpu: 200m
-              memory: 384Mi
+              memory: 1Gi
 
 ---
 apiVersion: apiextensions.k8s.io/v1
@@ -16523,9 +16540,9 @@ spec:
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
+kind: ClusterRoleBinding
 metadata:
-  name: strimzi-cluster-operator
+  name: strimzi-cluster-operator-namespaced
   labels:
     app: strimzi
 subjects:
