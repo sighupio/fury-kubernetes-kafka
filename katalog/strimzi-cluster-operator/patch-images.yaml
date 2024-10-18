@@ -15,8 +15,6 @@ spec:
       containers:
         - name: strimzi-cluster-operator
           env:
-            # - name: STRIMZI_DEFAULT_TLS_SIDECAR_ENTITY_OPERATOR_IMAGE
-            #   value: registry.sighup.io/fury/strimzi/kafka:0.43.0-kafka-3.8.0
             - name: STRIMZI_DEFAULT_KAFKA_EXPORTER_IMAGE
               value: registry.sighup.io/fury/strimzi/kafka:0.43.0-kafka-3.8.0
             - name: STRIMZI_DEFAULT_CRUISE_CONTROL_IMAGE

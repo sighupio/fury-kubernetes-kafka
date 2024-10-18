@@ -16,12 +16,11 @@ See our [Strimzi website][strimzi-website] for more details about the project.
 
 ## Image repository and tag
 
-* Strimzi Operator image: `registry.sighup.io/fury/strimzi/operator:0.31.1`
-* Strimzi Kafka images: `registry.sighup.io/fury/strimzi/kafka:0.31.1-kafka-{3.1.0,3.1.1,3.1.2,3.2.0,3.2.1,3.2.3}`
-* Strimzi Kafka bridge: `registry.sighup.io/fury/strimzi/kafka-bridge:0.22.1`
-* Strimzi JMXTrans: `registry.sighup.io/fury/strimzi/jmxtrans:0.31.1`
-* Strimzi Kaniko executor: `registry.sighup.io/fury/strimzi/kaniko-executor:0.31.1`
-* Strimzi Maven builder: `registry.sighup.io/fury/strimzi/maven-builder:0.31.1`
+* Strimzi Operator image: `registry.sighup.io/fury/strimzi/operator:0.43.0`
+* Strimzi Kafka images: `registry.sighup.io/fury/strimzi/kafka:0.43.0-kafka-{3.7.0,3.7.1,3.8.0}`
+* Strimzi Kafka bridge: `registry.sighup.io/fury/strimzi/kafka-bridge:0.30.0`
+* Strimzi Kaniko executor: `registry.sighup.io/fury/strimzi/kaniko-executor:0.43.0`
+* Strimzi Maven builder: `registry.sighup.io/fury/strimzi/maven-builder:0.43.0`
 
 ## Configuration
 

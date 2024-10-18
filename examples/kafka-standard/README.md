@@ -42,24 +42,33 @@ Check the address of one of your nodes:
 
 ```bash
 kubectl get nodes -o wide
-NAME       STATUS   ROLES           AGE   VERSION   INTERNAL-IP     EXTERNAL-IP   OS-IMAGE               KERNEL-VERSION   CONTAINER-RUNTIME
-minikube   Ready    control-plane   30m   v1.24.7   10.211.55.150   <none>        Buildroot 2021.02.12   5.10.57          docker://20.10.18
+
+NAME       SNAME                 STATUS   ROLES           AGE     VERSION   INTERNAL-IP   EXTERNAL-IP   OS-IMAGE                         KERNEL-VERSION    CONTAINER-RUNTIME
+kafka-control-plane   Ready    control-plane   5m14s   v1.27.3   172.18.0.2    <none>        Debian GNU/Linux 11 (bullseye)   6.5.11-linuxkit   containerd://1.7.1
 ```
 
-The IP address we can reach from outside the cluster is the INTERNAL-IP.
-
-For example, using the `kafka-producer-perf-test` cli tool:
+Create a ```producer``` and a ```consumer``` inside the cluster:
 
 ```bash
-kafka-producer-perf-test --throughput -1 --num-records 3000000 --record-size 1024 --producer-props bootstrap.servers=10.211.55.150:32110 --topic example-topic-1
+kubectl run -it kafka-producer --image=apache/kafka:latest -- sh
+
+kubectl run -it kafka-consumer --image=apache/kafka:latest -- sh
+```
+
+Run the `kafka-producer-perf-test` from inside the `kafka-producer` pod for testing messages production:
+
+```bash
+/opt/kafka/bin/kafka-producer-perf-test.sh --throughput -1 --num-records 300000 --record-size 1024 --producer-props bootstrap.servers=<internal-ip>:32110 --topic example-topic-1
+
 76396 records sent, 15279.2 records/sec (14.92 MB/sec), 1311.8 ms avg latency, 1931.0 ms max latency.
 102060 records sent, 20412.0 records/sec (19.93 MB/sec), 1534.0 ms avg latency, 1883.0 ms max latency.
 ```
 
-The same can be done using `kafka-consumer-perf-test` cli tool (plus `jq` to format the output):
+Run the `kafka-consumer-perf-test` from inside `kafka-consumer` pod for testing messages consumption:
 
 ```bash
-kafka-consumer-perf-test --messages 30000 --broker-list 10.211.55.150:32110 --topic example-topic-1 | jq -R .| jq -sr 'map(./",")|transpose|map(join(": "))[]'
+/opt/kafka/bin/kafka-consumer-perf-test.sh --messages 30000 --broker-list <internal-ip>:32110 --topic example-topic-1
+
 start.time: 2022-10-24 16:23:57:344
  end.time:  2022-10-24 16:24:01:054
  data.consumed.in.MB:  29.4385
@@ -71,8 +80,6 @@ start.time: 2022-10-24 16:23:57:344
  fetch.MB.sec:  107.0490
  fetch.nMsg.sec:  109618.1818
 ```
-
-
 
 # Conclusions
 
