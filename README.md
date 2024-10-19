@@ -34,9 +34,16 @@ Click on each package to see its full documentation.
 
 | Kubernetes Version |   Compatibility    | Notes                                               |
 |--------------------|:------------------:|-----------------------------------------------------|
-| `1.22.x`           | :white_check_mark: | No known issues                                     |
+| `<=1.22.x`           |  :x:                | Not supported                      |
 | `1.23.x`           | :white_check_mark: | No known issues                                     |
 | `1.24.x`           | :white_check_mark: | No known issues                                     |
+| `1.25.x`           | :white_check_mark: | No known issues                                     |
+| `1.26.x`           | :white_check_mark: | No known issues                                     |
+| `1.27.x`           | :white_check_mark: | No known issues                                     |
+| `1.28.x`           | :white_check_mark: | No known issues                                     |
+| `1.29.x`           | :white_check_mark: | No known issues                                     |
+| `1.30.x`           | :white_check_mark: | No known issues                                     |
+| `1.31.x`           | :white_check_mark: | No known issues                                     |
 
 Check the [compatibility matrix][compatibility-matrix] for additional information about previous releases of the modules.
 
